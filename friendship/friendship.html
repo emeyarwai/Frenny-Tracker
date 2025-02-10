@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frenny Tracker - Friendship Quiz</title>
+    <link rel="icon" type="image/x-icon" href="logo.jpg">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(to right, #ffdde1, #ee9ca7);
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #d63384;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        p {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #ff85a2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #ff4d6d;
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+        .question-container {
+            text-align: left;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .options label {
+            width: 100%;
+            background: #ffe4e1;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .options label:hover {
+            background: #ffc0cb;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Landing Page -->
+    <div id="landing" class="container">
+        <h1>Welcome to Frenny Tracker 💕</h1>
+        <p>Let's see what kind of friend you most likely are! 🌸</p>
+        <button class="btn" onclick="startQuiz()">Start the Quiz ✨</button>
+    </div>
+
+    <!-- Quiz Section -->
+    <div id="quiz" class="container hidden">
+        <h1>What Kind of Friend Are You?</h1>
+        <div id="question-container" class="question-container"></div>
+        <button class="btn hidden" id="next-btn" onclick="nextQuestion()">Next Question ➡️</button>
+        <button class="btn hidden" id="submit-btn" onclick="calculateResult()">See Result 🎉</button>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result" class="container hidden">
+        <h2>Your Friendship Type:</h2>
+        <p id="resultText"></p>
+        <button class="btn" onclick="restartQuiz()">Try Again 🔄</button>
+    </div>
+
+    <script>
+        const questions = [
+            { text: "At school you spent most of your lunchtimes:", options: ["Helping others", "Hanging with friends", "Joking around", "Deep in conversation"] },
+            { text: "What do you talk about with your friends?", options: ["Work", "Love life", "Hobbies", "Ideas"] },
+            { text: "Your best friend is moving away. You’ll be losing:", options: ["A social key", "Your right arm", "A grounding force", "A confidant"] },
+            { text: "Your friend upsets you. You:", options: ["Stop talking", "Let it go", "Confront them", "Ask for their reasoning"] },
+            { text: "A weekend with friends means:", options: ["Helping them out", "Partying", "Adventures", "Deep talks"] },
+            { text: "Your friend hasn’t called in months. You:", options: ["Forget about it", "Check daily", "Call them", "Wait patiently"] },
+            { text: "Your ideal hangout spot:", options: ["Library", "Nightclub", "Road trip", "Coffee shop"] },
+            { text: "Your go-to way of cheering a friend up:", options: ["Support them", "Plan a party", "Take them on an adventure", "Listen deeply"] },
+            { text: "Your friends describe you as:", options: ["Loyal", "Wild", "Funny", "Empathetic"] },
+            { text: "If a friend is struggling, you:", options: ["Help them", "Tell jokes", "Encourage an escape", "Offer advice"] }
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function startQuiz() {
+            document.getElementById("landing").classList.add("hidden");
+            document.getElementById("quiz").classList.remove("hidden");
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const questionContainer = document.getElementById("question-container");
+            questionContainer.innerHTML = `<p><strong>${currentQuestion + 1}. ${questions[currentQuestion].text}</strong></p>`;
+            let optionsHtml = "";
+            questions[currentQuestion].options.forEach((opt, index) => {
+                optionsHtml += `<label><input type="radio" name="q${currentQuestion}" value="${index}"> ${opt}</label>`;
+            });
+            questionContainer.innerHTML += optionsHtml;
+
+            document.getElementById("next-btn").classList.remove("hidden");
+            document.getElementById("submit-btn").classList.add("hidden");
+        }
+
+        function nextQuestion() {
+            const selected = document.querySelector(`input[name="q${currentQuestion}"]:checked`);
+            if (!selected) {
+                alert("Please select an answer!");
+                return;
+            }
+
+            answers.push(parseInt(selected.value));
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                document.getElementById("next-btn").classList.add("hidden");
+                document.getElementById("submit-btn").classList.remove("hidden");
+            }
+        }
+
+        function calculateResult() {
+            let types = ["Loyal", "Adventurous", "Funny", "Empathetic"];
+            let counts = [0, 0, 0, 0];
+
+            answers.forEach(ans => counts[ans]++);
+            let maxIndex = counts.indexOf(Math.max(...counts));
+
+            let descriptions = [
+                "You are the 'Loyal Friend'. Always there for your loved ones, they know they can count on you for anything!",
+                "You are the 'Adventurous Friend'. Always up for a new experience, you bring excitement wherever you go!",
+                "You are the 'Funny Friend'. You make everyone laugh and lighten up any situation!",
+                "You are the 'Empathetic Friend'. A deep listener and advisor, your friends confide in you."
+            ];
+
+            document.getElementById("resultText").innerHTML = descriptions[maxIndex];
+            document.getElementById("quiz").classList.add("hidden");
+            document.getElementById("result").classList.remove("hidden");
+        }
+
+        function restartQuiz() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
